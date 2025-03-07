@@ -785,6 +785,9 @@ MonoBehaviour:
   snapSpeed: 0.3
   movingDrag: 20
   orientation: {fileID: 830284950}
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     private Rigidbody rb;
     private Vector3 velocityChange = Vector3.zero;
     private float drag;
+    public LayerMask groundLayers;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -41,5 +42,9 @@ public class Player : MonoBehaviour
         }
         if (moving) rb.linearDamping = movingDrag;
         else rb.linearDamping = drag;
+    }
+
+    bool isOnGround() {
+        return Physics.Raycast(transform.position, Vector3.down, 0.5f, groundLayers);
     }
 }
