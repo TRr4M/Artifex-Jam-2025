@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     public float speed, maxSpeed, speedPenalty, snapSpeed, movingDrag;
+    public Transform orientation;
 
     private Rigidbody rb;
     private Vector3 velocityChange = Vector3.zero;
@@ -21,8 +22,8 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 newVeloChange;
-        newVeloChange = transform.forward * Input.GetAxis("Vertical");
-        newVeloChange += transform.right * Input.GetAxis("Horizontal");
+        newVeloChange = orientation.forward * Input.GetAxis("Vertical");
+        newVeloChange += orientation.right * Input.GetAxis("Horizontal");
         if (newVeloChange.sqrMagnitude > 1) newVeloChange.Normalize();
         bool moving = newVeloChange.sqrMagnitude > 0;
         float tempMaxSpeed = moving ? maxSpeed * newVeloChange.magnitude : maxSpeed;
