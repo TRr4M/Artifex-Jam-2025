@@ -7,11 +7,10 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public float speed, maxSpeed, speedPenalty, snapSpeed, movingDrag;
+    public float speed, maxSpeed, speedPenalty, snapSpeed, groundDrag, jumpPower;
     public Transform orientation;
 
     private Rigidbody rb;
-    private Vector3 velocityChange = Vector3.zero;
     private float drag;
     public LayerMask groundLayers;
 
@@ -25,26 +24,30 @@ public class Player : MonoBehaviour
         Vector3 newVeloChange;
         newVeloChange = orientation.forward * Input.GetAxis("Vertical");
         newVeloChange += orientation.right * Input.GetAxis("Horizontal");
-        if (newVeloChange.sqrMagnitude > 1) newVeloChange.Normalize();
+        bool onGround = isOnGround();
+        if (!onGround) newVeloChange = new Vector3();
+        else if (newVeloChange.sqrMagnitude > 1) newVeloChange.Normalize();
         bool moving = newVeloChange.sqrMagnitude > 0;
-        float tempMaxSpeed = moving ? maxSpeed * newVeloChange.magnitude : maxSpeed;
         newVeloChange *= speed;
-        velocityChange = newVeloChange;
         rb.linearVelocity += newVeloChange * Time.deltaTime;
-        if (!moving && rb.linearVelocity.sqrMagnitude < snapSpeed * snapSpeed) {
+        if (!moving && onGround && rb.linearVelocity.sqrMagnitude < snapSpeed * snapSpeed) {
             rb.linearVelocity = new Vector3();
         }
-        else if (rb.linearVelocity.sqrMagnitude > tempMaxSpeed * tempMaxSpeed) {
-            float mag = rb.linearVelocity.magnitude, exceedBy = mag - tempMaxSpeed;
+        else if (onGround && rb.linearVelocity.sqrMagnitude > maxSpeed * maxSpeed) {
+            float mag = rb.linearVelocity.magnitude, exceedBy = mag - maxSpeed;
             Vector3 dv = speedPenalty * Time.deltaTime * rb.linearVelocity / mag;
             if (dv.sqrMagnitude < exceedBy * exceedBy) rb.linearVelocity -= dv;
-            else rb.linearVelocity = rb.linearVelocity * tempMaxSpeed / mag;
+            else rb.linearVelocity = rb.linearVelocity * maxSpeed / mag;
         }
-        if (moving) rb.linearDamping = movingDrag;
+        if (onGround) rb.linearDamping = groundDrag;
         else rb.linearDamping = drag;
+
+        if (onGround && Input.GetKey(KeyCode.Space)) {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpPower, rb.linearVelocity.z);
+        }
     }
 
     bool isOnGround() {
-        return Physics.Raycast(transform.position, Vector3.down, 0.5f, groundLayers);
+        return Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayers);
     }
 }
