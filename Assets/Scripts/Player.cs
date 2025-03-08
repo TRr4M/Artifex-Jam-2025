@@ -1,20 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
     public float speed, maxSpeed, speedPenalty, snapSpeed, groundDrag, jumpPower, swatRange;
-    public Transform orientation;
 
     private Rigidbody rb;
     private float drag;
+    public float mouseSensitivity;
+    private float xRotation;
+    private float yRotation;
+    private Transform mainCamera;
+
     public LayerMask groundLayers;
 
     void Start() {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        mainCamera = GameObject.Find("Main Camera").transform;
+
         rb = GetComponent<Rigidbody>();
         drag = rb.linearDamping;
     }
@@ -22,8 +25,8 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 newVeloChange;
-        newVeloChange = orientation.forward * Input.GetAxis("Vertical");
-        newVeloChange += orientation.right * Input.GetAxis("Horizontal");
+        newVeloChange = transform.forward * Input.GetAxis("Vertical");
+        newVeloChange += transform.right * Input.GetAxis("Horizontal");
         bool onGround = IsOnGround();
         if (!onGround) newVeloChange = new Vector3();
         else if (newVeloChange.sqrMagnitude > 1) newVeloChange.Normalize();
@@ -44,6 +47,32 @@ public class Player : MonoBehaviour
 
         if (onGround && Input.GetKey(KeyCode.Space)) {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpPower, rb.linearVelocity.z);
+        }
+    }
+
+    void Update()
+    {
+        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * mouseSensitivity;
+        yRotation += mouseX;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * mouseSensitivity;
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -80f, 90f);
+        transform.rotation = Quaternion.Euler(0, yRotation, 0);
+        mainCamera.localRotation = Quaternion.Euler(xRotation, 0, 0);
+
+        if (Input.GetKeyDown(KeyCode.E)) { // Swat spider
+            RaycastHit[] hits = Physics.RaycastAll(mainCamera.position, mainCamera.forward, swatRange);
+            System.Array.Sort(hits, (x,y) => x.distance.CompareTo(y.distance));
+            if (hits.Length > 0) {
+                RaycastHit hit = hits[0];
+                GameObject spiderGameObject = hit.collider.gameObject;
+                if (spiderGameObject.CompareTag("spider")) {
+                    spiderGameObject = spiderGameObject.transform.parent.parent.gameObject;
+                    spiderGameObject.GetComponent<Spider>().lastSwat = Time.time;
+                    Rigidbody spiderRB = spiderGameObject.GetComponent<Rigidbody>();
+                    spiderRB.linearVelocity = 12 * Spider.Project(mainCamera.forward, Vector3.up) + 5 * Vector3.up;
+                }
+            }
         }
     }
 

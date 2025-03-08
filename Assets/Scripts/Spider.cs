@@ -37,15 +37,17 @@ public class Spider : MonoBehaviour
         Crawl();
 
         // Animate legs
-        float animationTime = Time.time + legAnimationOffset;
-        float animationAngle = (float)Math.Cos(animationTime * legAnimationSpeed) * legAnimationAmplitude;
-        foreach (Transform leg in legs) {
-            leg.localRotation = Quaternion.Euler(new Vector3(-90f, animationAngle, 0));
-            animationAngle = -animationAngle;
+        if (Time.time - lastSwat >= swatCooldown) {
+            float animationTime = Time.time + legAnimationOffset;
+            float animationAngle = (float)Math.Cos(animationTime * legAnimationSpeed) * legAnimationAmplitude;
+            foreach (Transform leg in legs) {
+                leg.localRotation = Quaternion.Euler(new Vector3(-90f, animationAngle, 0));
+                animationAngle = -animationAngle;
+            }
         }
     }
 
-    Vector3 Project(Vector3 direction, Vector3 normal) {
+    public static Vector3 Project(Vector3 direction, Vector3 normal) {
         return direction - Vector3.Dot(direction, normal) / normal.sqrMagnitude * normal;
     }
 
