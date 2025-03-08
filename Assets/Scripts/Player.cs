@@ -70,7 +70,7 @@ public class Player : MonoBehaviour
                     spiderGameObject = spiderGameObject.transform.parent.parent.gameObject;
                     spiderGameObject.GetComponent<Spider>().lastSwat = Time.time;
                     Rigidbody spiderRB = spiderGameObject.GetComponent<Rigidbody>();
-                    spiderRB.linearVelocity = 12 * Spider.Project(mainCamera.forward, Vector3.up) + 5 * Vector3.up;
+                    spiderRB.linearVelocity = 6.5f * Spider.Project(mainCamera.forward, Vector3.up).normalized + 6 * Vector3.up;
                 }
             }
         }
