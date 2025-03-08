@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
         Vector3 newVeloChange;
         newVeloChange = orientation.forward * Input.GetAxis("Vertical");
         newVeloChange += orientation.right * Input.GetAxis("Horizontal");
-        bool onGround = isOnGround();
+        bool onGround = IsOnGround();
         if (!onGround) newVeloChange = new Vector3();
         else if (newVeloChange.sqrMagnitude > 1) newVeloChange.Normalize();
         bool moving = newVeloChange.sqrMagnitude > 0;
@@ -47,7 +47,8 @@ public class Player : MonoBehaviour
         }
     }
 
-    bool isOnGround() {
+    bool IsOnGround() {
         return Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayers);
+        //return Physics.CheckSphere(transform.position - 0.65f*transform.up, 0.49f, groundLayers);
     }
 }
