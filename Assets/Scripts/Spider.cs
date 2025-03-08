@@ -19,6 +19,8 @@ public class Spider : MonoBehaviour
     private Rigidbody rb;
     private float legAnimationOffset;
     private Transform playerFace;
+    private Transform playerTransform;
+    private Player player;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -28,6 +30,8 @@ public class Spider : MonoBehaviour
         legAnimationOffset = UnityEngine.Random.Range(0f, (float)(2 * Math.PI));
         lastSwat = -99999f;
         playerFace = GameObject.Find("Player").transform.Find("Main Camera").Find("Face");
+        player = GameObject.Find("Player").GetComponent<Player>();
+        playerTransform = GameObject.Find("Player").transform;
     }
 
     // Update is called once per frame
@@ -45,6 +49,12 @@ public class Spider : MonoBehaviour
                 leg.localRotation = Quaternion.Euler(new Vector3(-90f, animationAngle, animationAngle));
                 animationAngle = -animationAngle;
             }
+        }
+
+        // Attack
+        if (Time.time - lastSwat >= swatCooldown && (transform.position - playerTransform.position).sqrMagnitude < 2.5f) {
+            lastSwat = Time.time;
+            player.health -= 10;
         }
     }
 

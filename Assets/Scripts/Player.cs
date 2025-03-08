@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -12,6 +14,9 @@ public class Player : MonoBehaviour
     private Transform mainCamera;
 
     public LayerMask groundLayers;
+    public TextMeshProUGUI healthText;
+    public RawImage healthBar;
+    public int health = 100;
 
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
@@ -20,6 +25,7 @@ public class Player : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         drag = rb.linearDamping;
+        health = 100;
     }
 
     void FixedUpdate()
@@ -48,6 +54,13 @@ public class Player : MonoBehaviour
         if (onGround && Input.GetKey(KeyCode.Space)) {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpPower, rb.linearVelocity.z);
         }
+
+        if (transform.position.y < -200 && Time.frameCount % 5 == 0) {
+            health -= 1;
+        }
+
+        healthText.text = health.ToString();
+        healthBar.rectTransform.localScale = new Vector3(health / 100f, healthBar.rectTransform.localScale.y, healthBar.rectTransform.localScale.z);
     }
 
     void Update()
