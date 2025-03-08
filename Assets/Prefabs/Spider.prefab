@@ -169,6 +169,8 @@ MonoBehaviour:
   - {fileID: 6328822399487082474}
   - {fileID: 8971728223960941274}
   - {fileID: 3879527126915096516}
+  swatCooldown: 3
+  lastSwat: 0
 --- !u!54 &3463086330072584603
 Rigidbody:
   m_ObjectHideFlags: 0

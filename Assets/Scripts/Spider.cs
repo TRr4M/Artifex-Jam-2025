@@ -13,6 +13,8 @@ public class Spider : MonoBehaviour
     public float legAnimationSpeed;
     public float legAnimationAmplitude;
     public List<Transform> legs;
+    public float swatCooldown;
+    public float lastSwat;
 
     private Rigidbody rb;
     private float legAnimationOffset;
@@ -23,6 +25,7 @@ public class Spider : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         snapDist *= snapDist;
         legAnimationOffset = UnityEngine.Random.Range(0f, (float)(2 * Math.PI));
+        lastSwat = -99999f;
     }
 
     // Update is called once per frame
@@ -48,8 +51,8 @@ public class Spider : MonoBehaviour
 
     void Crawl() {
         RaycastHit[] hits = Physics.RaycastAll(transform.position + (0.1f * transform.forward), -transform.up, maxGroundDist);
-        System.Array.Sort(hits, (x,y) => x.distance.CompareTo(y.distance));
-        if (hits.Length == 0) {
+        Array.Sort(hits, (x,y) => x.distance.CompareTo(y.distance));
+        if (hits.Length == 0 || Time.time - lastSwat < swatCooldown) {
             rb.isKinematic = false;
             rb.useGravity = true;
             if (rb.linearVelocity.sqrMagnitude < 0.1f) {

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public float speed, maxSpeed, speedPenalty, snapSpeed, groundDrag, jumpPower;
+    public float speed, maxSpeed, speedPenalty, snapSpeed, groundDrag, jumpPower, swatRange;
     public Transform orientation;
 
     private Rigidbody rb;
