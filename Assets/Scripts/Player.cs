@@ -1,5 +1,7 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour
@@ -12,10 +14,14 @@ public class Player : MonoBehaviour
     private float xRotation;
     private float yRotation;
     private Transform mainCamera;
+    public RawImage healthBar;
+    private VolumeProfile volume;
+    private Vignette vignette;
+    private ChromaticAberration chromaticAberration;
+    private WhiteBalance whiteBalance;
 
     public LayerMask groundLayers;
     public TextMeshProUGUI healthText;
-    public RawImage healthBar;
     public int health = 100;
 
     void Start() {
@@ -26,6 +32,10 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         drag = rb.linearDamping;
         health = 100;
+        volume = GameObject.Find("Global Volume").GetComponent<Volume>().profile;
+        volume.TryGet(out chromaticAberration);
+        volume.TryGet(out vignette);
+        volume.TryGet(out whiteBalance);
     }
 
     void FixedUpdate()
@@ -55,12 +65,18 @@ public class Player : MonoBehaviour
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpPower, rb.linearVelocity.z);
         }
 
+        // Health stuff
         if (transform.position.y < -200 && Time.frameCount % 5 == 0) {
             health -= 1;
         }
-
+        if (health < 0) {
+            health = 0;
+        }
         healthText.text = health.ToString();
         healthBar.rectTransform.localScale = new Vector3(health / 100f, healthBar.rectTransform.localScale.y, healthBar.rectTransform.localScale.z);
+        chromaticAberration.intensity.Override(Mathf.Lerp(1f, 0f, health / 100f));
+        vignette.intensity.Override(Mathf.Lerp(0.4f, 0.15f, health / 100f));
+        whiteBalance.temperature.Override(Mathf.Lerp(100f, -30f, health / 100f));
     }
 
     void Update()
