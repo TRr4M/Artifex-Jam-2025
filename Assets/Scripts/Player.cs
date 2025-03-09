@@ -23,10 +23,12 @@ public class Player : MonoBehaviour
     private ChromaticAberration chromaticAberration;
     private WhiteBalance whiteBalance;
     private bool dead = false;
+    private AudioSource slap;
 
     public LayerMask groundLayers;
     public TextMeshProUGUI healthText;
     public int health = 100;
+    public bool win;
 
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
@@ -34,6 +36,7 @@ public class Player : MonoBehaviour
         mainCamera = GameObject.Find("Main Camera").transform;
         xRotation = 0f;
         yRotation = 180f;
+        slap = GameObject.Find("Slap Sound").GetComponent<AudioSource>();
 
         rb = GetComponent<Rigidbody>();
         drag = rb.linearDamping;
@@ -45,6 +48,7 @@ public class Player : MonoBehaviour
         volume.TryGet(out vignette);
         volume.TryGet(out whiteBalance);
         deathScreen.alpha = 0f;
+        win = false;
     }
 
     void FixedUpdate()
@@ -117,6 +121,7 @@ public class Player : MonoBehaviour
                     RaycastHit hit = hits[0];
                     GameObject spiderGameObject = hit.collider.gameObject;
                     if (spiderGameObject.CompareTag("spider")) {
+                        slap.Play();
                         spiderGameObject = spiderGameObject.transform.parent.parent.gameObject;
                         spiderGameObject.GetComponent<Spider>().lastSwat = Time.time;
                         Rigidbody spiderRB = spiderGameObject.GetComponent<Rigidbody>();
@@ -137,5 +142,12 @@ public class Player : MonoBehaviour
     bool IsOnGround() {
         return Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayers);
         //return Physics.CheckSphere(transform.position - 0.65f*transform.up, 0.49f, groundLayers);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("WinZone")) {
+            win = true;
+        }
     }
 }

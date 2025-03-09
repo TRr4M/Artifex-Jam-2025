@@ -21,6 +21,9 @@ public class Spider : MonoBehaviour
     private Transform playerFace;
     private Transform playerTransform;
     private Player player;
+    private AudioSource bite;
+    private AudioSource walk;
+    private bool walkNoise;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -32,11 +35,18 @@ public class Spider : MonoBehaviour
         playerFace = GameObject.Find("Player").transform.Find("Main Camera").Find("Face");
         player = GameObject.Find("Player").GetComponent<Player>();
         playerTransform = GameObject.Find("Player").transform;
+        bite = transform.Find("Bite").GetComponent<AudioSource>();
+        walk = transform.Find("Walk").GetComponent<AudioSource>();
+        walkNoise = false;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (player.win) {
+            lastSwat = Time.time + 100f;
+        }
+
         crawlTarget = playerFace.transform.position;
 
         Crawl();
@@ -55,6 +65,7 @@ public class Spider : MonoBehaviour
         if (Time.time - lastSwat >= swatCooldown && (transform.position - playerTransform.position).sqrMagnitude < 2.5f) {
             lastSwat = Time.time;
             player.health -= 10;
+            bite.Play();
         }
     }
 
@@ -72,7 +83,19 @@ public class Spider : MonoBehaviour
             if (isSlow) {
                 transform.rotation = Quaternion.LookRotation(Project(transform.forward, Vector3.up).normalized, Vector3.up);
             }
+            if (walkNoise) {
+                walk.Stop();
+                walkNoise = false;
+            }
             return;
+        }
+        if ((playerTransform.position - transform.position).sqrMagnitude > 144f) {
+            walk.Stop();
+            walkNoise = false;
+        }
+        else if (!walkNoise) {
+            walk.PlayOneShot(walk.clip);
+            walkNoise = true;
         }
         rb.useGravity = false;
         rb.angularVelocity = new Vector3();
