@@ -8321,7 +8321,7 @@ MonoBehaviour:
   groundDrag: 20
   jumpPower: 8
   swatRange: 3
-  mouseSensitivity: 400
+  mouseSensitivity: 150
   healthBar: {fileID: 976853399}
   deathScreen: {fileID: 1767448909}
   groundLayers:
